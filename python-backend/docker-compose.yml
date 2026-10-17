@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database Service
+  postgres_db:
+    image: postgres:16-alpine
+    container_name: nctb_postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: nctb_user
+      POSTGRES_PASSWORD: nctb_secure_password_2026
+      POSTGRES_DB: nctb_shiksha_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - nctb_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nctb_user -d nctb_shiksha_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Python FastAPI Backend Service
+  api_backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nctb_fastapi_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://nctb_user:nctb_secure_password_2026@postgres_db:5432/nctb_shiksha_db
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - OLLAMA_MODEL=qwen2.5vl:3b
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    networks:
+      - nctb_network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  nctb_network:
+    driver: bridge

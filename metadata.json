@@ -1,0 +1,6 @@
+{
+  "name": "NCTB Bangla Shiksha - Class 6-8 Learning & AI Tutor",
+  "description": "Interactive learning platform for NCTB Class 6-8 (Charupath, Saptabarna, Sahitya-Konika) with role dashboards, video classes, quizzes, and RAG-powered AI Tutor.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
